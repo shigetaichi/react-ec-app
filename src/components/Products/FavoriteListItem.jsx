@@ -53,7 +53,6 @@ const FavoriteListItem = (props) => {
         </IconButton>
       </ListItem>
       <Divider/>
-      
     </>
   )
 }

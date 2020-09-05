@@ -1,9 +1,9 @@
 import React, {useEffect} from 'react';
 import IconButton from "@material-ui/core/IconButton";
 import {Badge} from "@material-ui/core";
-import {fetchProductsInCart} from "../../redux/users/operations";
+import {fetchProductsInCart, fetchProductsInFavorite} from "../../redux/users/operations";
 import {useDispatch, useSelector} from "react-redux";
-import {getProductsInCart, getUserId} from "../../redux/users/selectors";
+import {getProductsInCart, getUserId, getProductsInFavorite} from "../../redux/users/selectors";
 import {push} from "connected-react-router"
 import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
 import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
@@ -15,6 +15,7 @@ const HeaderMenu = (props) => {
   const selector = useSelector((state) => state);
   const uid = getUserId(selector);
   let productsInCart = getProductsInCart(selector);
+  let productsInFavorite = getProductsInFavorite(selector);
 
   useEffect( () => {
     const unsubscribe = db.collection('users').doc(uid).collection('cart')
@@ -44,8 +45,35 @@ const HeaderMenu = (props) => {
                           });
                           dispatch(fetchProductsInCart(productsInCart));
                         });
-                        return () => unsubscribe();
+    return () => unsubscribe();
   },[]);
+
+  useEffect(() => {
+    const unsubscribeFavorite = db.collection('users').doc(uid).collection('favorite')
+                                  .onSnapshot(snapshot => {
+                                    snapshot.docChanges().forEach(change => {
+                                      const product = change.doc.data();
+                                      const changeType = change.type;
+
+                                      switch(changeType){
+                                        case "added":
+                                          productsInFavorite.push(product);
+                                          break;
+                                        case "modified":
+                                          const index = productsInFavorite.findIndex(product => product.favoriteId === change.doc.id);
+                                          productsInFavorite[index] = product;
+                                          break;
+                                        case "removed":
+                                          productsInFavorite = productsInFavorite.filter(product => product.favoriteId !== change.doc.id);
+                                          break;
+                                        default:
+                                          break;
+                                      }
+                                    });
+                                    dispatch(fetchProductsInFavorite(productsInFavorite));
+                                  });
+    return () => unsubscribeFavorite();
+  }, []);
 
   return (
     <>

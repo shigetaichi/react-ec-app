@@ -58,6 +58,7 @@ const ProductDetail = () => {
   const id = path.split('/product/')[1];
 
   const [product, setProduct] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const addProduct = useCallback(
     (selectedSize) => {
