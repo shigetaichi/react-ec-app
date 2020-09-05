@@ -1,13 +1,31 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+import createStore from './redux/store/store';
+import { Provider } from 'react-redux';
+//providerは、ラップしたコンポーネントにstoreの情報を渡す。Reactコンポ内でreact-reduxのconnect関数を使えるようにする
+
+import { ConnectedRouter } from 'connected-react-router';
+import { MuiThemeProvider } from '@material-ui/core';
+import { theme } from './assets/theme'
+
+import * as History from 'history';
+const history = History.createBrowserHistory();
+
+export const store = createStore(history);
+// 実行しないとstore作られないよ
+
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <Provider store={store}>
+    <ConnectedRouter history={history}>
+      <MuiThemeProvider theme={theme}>
+        <App />
+      </MuiThemeProvider>
+    </ConnectedRouter>
+  </Provider>,
   document.getElementById('root')
 );
 
