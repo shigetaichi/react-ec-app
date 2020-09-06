@@ -5,7 +5,10 @@ import { makeStyles } from '@material-ui/styles';
 import HTMLReactParser from 'html-react-parser';
 import { ImageSwiper } from '../components/Products/index';
 import SizeTable from '../components/Products/SizeTable';
-import {addProductToCart, addProductToFavorite} from '../redux/users/operations';
+import {addProductToCart, addProductToFavorite, deleteProductFromFavorite} from '../redux/users/operations';
+import {getUserId} from '../redux/users/selectors';
+
+import {getProductsInFavorite} from '../redux/users/selectors';
 
 const useStyles = makeStyles( (theme) => (
   {
@@ -53,12 +56,12 @@ const ProductDetail = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const selector = useSelector(state => state);
-  // console.log(selector);
   const path = selector.router.location.pathname;
   const id = path.split('/product/')[1];
+  const uid = getUserId(selector);
 
   const [product, setProduct] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false);
+  // const [isFavorite, setIsFavorite] = useState(false);
 
   const addProduct = useCallback(
     (selectedSize) => {
@@ -76,21 +79,21 @@ const ProductDetail = () => {
       }))
     },[dispatch, product]);
 
-  const addFavorite = useCallback(
-    (selectedSize) => {
-      const timestamp = FirebaseTimeStamp.now();
-      dispatch(addProductToFavorite({
-        added_at: timestamp,
-        description: product.description,
-        gender: product.gender,
-        images: product.images,
-        name: product.name,
-        price: product.price,
-        productId: product.id,
-        quantity: 1,
-        size: selectedSize,
-      }))
-    },[dispatch, product]);
+    const addFavorite = useCallback(
+      (selectedSize) => {
+        const timestamp = FirebaseTimeStamp.now();
+        dispatch(addProductToFavorite({
+          added_at: timestamp,
+          description: product.description,
+          gender: product.gender,
+          images: product.images,
+          name: product.name,
+          price: product.price,
+          productId: product.id,
+          quantity: 1,
+          size: selectedSize,
+        }))
+      },[dispatch, product]);
 
 
   useEffect(() => {
@@ -100,7 +103,6 @@ const ProductDetail = () => {
         setProduct(data);
       })
     console.log("useEffectTriggered");
-    
   },[])//ここにidを入れると×
   // FirebaseError: Function CollectionReference.doc() requires its first argument to be of type non-empty string, but it was: undefined
   // こいつが出た。
@@ -117,7 +119,7 @@ const ProductDetail = () => {
             <h2 className="u-text__headline">{product.name}</h2>
             <p className={classes.price}>{product.price.toLocaleString()}</p>
             <div className="module-spacer--small"></div>
-            <SizeTable addProduct={addProduct} addFavorite={addFavorite} sizes={product.sizes} ></SizeTable>
+            <SizeTable addProduct={addProduct} addFavorite={addFavorite} productId={id} sizes={product.sizes} ></SizeTable>
             <div className="module-spacer--small"></div>
             <p>{returnCodeToBr(product.description)}</p>
           </div>

@@ -78,14 +78,16 @@ const HeaderMenu = (props) => {
   return (
     <>
       <IconButton onClick={() => dispatch(push('/cart'))}>
-      {console.log(productsInCart)}
+      {/* {console.log(productsInCart)} */}
         <Badge badgeContent={productsInCart.length === 0 ? null : productsInCart.length} color="secondary" >
-          {console.log(productsInCart.length)}
+          {/* {console.log(productsInCart.length)} */}
           <ShoppingCartIcon/>
         </Badge>
       </IconButton>
       <IconButton onClick={() => dispatch(push('/favorite'))} >
-        <FavoriteBorderIcon/>
+        <Badge badgeContent={productsInFavorite.length === 0 ? null : productsInFavorite.length} color="secondary" >
+          <FavoriteBorderIcon/>
+        </Badge>
       </IconButton>
       <IconButton onClick={(event) => props.handleDrawerToggle(event)} >
         <MenuIcon/>
